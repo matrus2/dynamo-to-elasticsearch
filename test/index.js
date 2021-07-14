@@ -224,11 +224,11 @@ describe('Test stream events', () => {
   })
 
   it('Throws errors when index not found when using bulk delete', async () => {
-    await assertThrowsAsync(async () => pushStream({ event: removeEvent, index: 'test-no-exists', endpoint: ES_ENDPOINT, useBulk: true, testMode: true }), 'An error occured while executing a batch delete, please set DEBUG=elasticsearch for details')
+    await assertThrowsAsync(async () => pushStream({ event: removeEvent, index: 'test-no-exists', endpoint: ES_ENDPOINT, useBulk: true, testMode: true }), 'no such index [test-no-exists]')
   })
 
   it('Throws errors when index not found when using bulk insert with inconsistent document types', async () => {
-    await assertThrowsAsync(async () => pushStream({ event: insertEventWithInconsitentTypes, index: INDEX, endpoint: ES_ENDPOINT, useBulk: true, testMode: true }), 'An error occured while executing a batch upsert, please set DEBUG=elasticsearch for details')
+    await assertThrowsAsync(async () => pushStream({ event: insertEventWithInconsitentTypes, index: INDEX, endpoint: ES_ENDPOINT, useBulk: true, testMode: true }), 'failed to parse field [addedDate] of type [long] in document with id \'kale-pasros-253b536b-1\'. Preview of field\'s value: \'undefined\'')
   })
 
   it('Multiple events: insert, remove, modify with refresh false', async () => {

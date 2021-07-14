@@ -69,12 +69,10 @@ Upload Lambda to AWS and _star_ this repository if it works as expected!!
 ### Setup elastic node 
 Docker can be used to host a node of Elasticsearch
 
-Docker by default tries to pull the ```elasticsearch:latest``` tag from the repository if no version is specified. 
-The tag ```latest`` does not exists, therefore a specific version needs to be specified ie: ```7.2.0```.
 To run tests locally you need to have an Elasticsearch Docker container running. Simply type:
 
 ```bash
-docker run -i -p 9200:9200 --name my_elastic_7_10 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+docker-compose up -d 
 ```   
 ### Running tests
 

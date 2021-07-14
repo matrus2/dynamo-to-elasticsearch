@@ -15,6 +15,25 @@ const validateFunctionOrUndefined = (param, paramName) => {
   if (!(typeof param === 'undefined' || typeof param === 'function')) throw new Error(`Please provide correct value for ${paramName}`)
 }
 
+const handleBulkResponseErrors = (bulkResponse, body) => {
+  if (bulkResponse.errors) {
+    const erroredDocuments = []
+    bulkResponse.items.forEach((action, i) => {
+      const operation = Object.keys(action)[0]
+      if (action[operation].error) {
+        erroredDocuments.push({
+          status: action[operation].status,
+          error: action[operation].error,
+          operation: body[i * 2],
+          document: body[i * 2 + 1]
+        })
+      }
+    })
+    console.error(erroredDocuments)
+    throw new Error(erroredDocuments.map(obj => obj.error.reason).join(','))
+  }
+}
+
 exports.pushStream = async (
   {
     event,
@@ -76,7 +95,7 @@ exports.pushStream = async (
       const bodyDelete = flatMap(toRemove, (doc) => [{ delete: { _index: doc.index, _id: doc.id } }])
       const { body: bulkResponse } = await es.bulk({ refresh: toRemove[0].refresh, body: bodyDelete })
       if (bulkResponse.errors) {
-        throw new Error('An error occured while executing a batch delete, please set DEBUG=elasticsearch for details')
+        handleBulkResponseErrors(bulkResponse, bodyDelete)
       }
     } else {
       for (const doc of toRemove) {
@@ -97,7 +116,7 @@ exports.pushStream = async (
       ])
       const { body: bulkResponse } = await es.bulk({ refresh: toUpsert[0].refresh, body: updateBody })
       if (bulkResponse.errors) {
-        throw new Error('An error occured while executing a batch upsert, please set DEBUG=elasticsearch for details')
+        handleBulkResponseErrors(bulkResponse, updateBody)
       }
     } else {
       for (const doc of toUpsert) {
